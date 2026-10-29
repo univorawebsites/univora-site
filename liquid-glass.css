@@ -420,3 +420,101 @@ html.lg2 .liquid-object.orb i {
   html.lg2 .ambient i, html.lg2 .glass-fx::before, html.lg2 .liquid-object.orb i,
   html.lg2 :is(.glass-panel, .shop-card, .contact-aside, .showcase-browser) { animation: none !important; }
 }
+
+/* Small screens: keep the concept previews usable inside their narrow frames. */
+@media (max-width: 720px) {
+  .pill {
+    height: calc(54.054vw - 21.62px);
+    max-height: calc(54.054vw - 21.62px);
+  }
+  .play .pill { animation: wild-mobile-reveal 2.1s cubic-bezier(.4, 0, .2, 1) forwards; }
+}
+@keyframes wild-mobile-reveal {
+  0%, 14% { clip-path: inset(0 50%); opacity: 0; transform: scaleY(.8); }
+  30% { clip-path: inset(0 36%); opacity: 1; }
+  100% { clip-path: inset(0); opacity: 1; transform: scaleY(1); }
+}
+@media (max-width: 720px) and (prefers-reduced-motion: reduce) {
+  .play .pill { animation: none; }
+}
+@media (max-width: 600px) {
+  .nav button { min-height: 44px; }
+  .showcase-chrome { height: 48px; }
+  .showcase-chrome i { display: none; }
+  .showcase-chrome span {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .showcase-controls button {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    font-size: 15px;
+  }
+  .showcase-controls button::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+  }
+  html.showcase-mode body:has(#particles) .about { display: none; }
+  .contact-form input::placeholder,
+  .contact-form textarea::placeholder { color: #b9c6da; opacity: 1; }
+  .site-footer { color: #a6b4cc; }
+}
+
+/* Fine detail in the existing surfaces, without changing their layout. */
+.content-block {
+  background-image: radial-gradient(ellipse at 85% 20%, rgba(56, 80, 144, .32), transparent 60%),
+                    radial-gradient(circle at 8% 90%, rgba(116, 99, 174, .1), transparent 38%),
+                    linear-gradient(rgba(219, 231, 255, .025) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(219, 231, 255, .025) 1px, transparent 1px);
+  background-size: auto, auto, 72px 72px, 72px 72px;
+}
+#home .showcase {
+  background-image: radial-gradient(ellipse at 75% 20%, rgba(72, 77, 135, .24), transparent 48%),
+                    radial-gradient(ellipse at 12% 82%, rgba(55, 79, 129, .18), transparent 42%),
+                    linear-gradient(115deg, rgba(201, 218, 255, .025) 1px, transparent 1px);
+  background-size: auto, auto, 110px 110px;
+}
+.glass-panel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 24px;
+  width: 32%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(246, 250, 255, .8), transparent);
+  pointer-events: none;
+}
+.process article { position: relative; }
+.process article::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -2px;
+  width: 42px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #d9e7ff, rgba(167, 185, 255, .16));
+  box-shadow: 0 0 18px rgba(167, 194, 255, .3);
+}
+.showcase-open span { transition: transform .35s cubic-bezier(.16, 1, .3, 1); }
+.showcase-open:hover span, .showcase-open:focus-visible span { transform: translate(3px, -3px); }
+.showcase-play { font-size: 0 !important; }
+.showcase-play::before {
+  content: "";
+  width: 12px;
+  height: 13px;
+  background: linear-gradient(90deg, currentColor 0 3px, transparent 3px 8px, currentColor 8px 11px, transparent 11px);
+}
+.showcase-play[aria-label="Riprendi l’anteprima"]::before {
+  width: 11px;
+  height: 13px;
+  background: currentColor;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .showcase-open span { transition: none; }
+}
