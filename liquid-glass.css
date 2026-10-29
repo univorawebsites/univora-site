@@ -200,3 +200,223 @@ body:has(.scene.play) .journey-visual {
   .glass-motion { transform: none; }
   .showcase-chrome::before { animation: none; }
 }
+
+/* =====================================================================
+   Liquid glass v2: depth, rim light and slow ambient motion.
+   Scoped to the main site (html.lg2) so the concept pages are untouched.
+   Only surfaces, light, transforms and animations are changed here:
+   no width, height, padding, margin, gap or font-size is set anywhere.
+   ===================================================================== */
+
+/* --- Ambient light behind everything: gives the glass something to refract --- */
+html.lg2 .ambient { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; contain: strict; }
+html.lg2 .ambient i { position: absolute; display: block; border-radius: 50%; will-change: transform; }
+html.lg2 .ambient i {
+  translate: calc(var(--amb-px, 0) * var(--d, 24) * 1px) calc(var(--amb-y, 0) * var(--s, -.05) * 1px + var(--amb-py, 0) * var(--d, 24) * 1px);
+}
+html.lg2 .ambient .o1 {
+  width: 62vmax; height: 62vmax; left: -22vmax; top: -18vmax; --d: 34; --s: -.05;
+  background: radial-gradient(circle, rgba(86, 122, 255, .3) 0, rgba(86, 122, 255, .11) 42%, transparent 68%);
+  animation: lg-drift-a 38s ease-in-out infinite alternate;
+}
+html.lg2 .ambient .o2 {
+  width: 54vmax; height: 54vmax; right: -20vmax; top: 18%; --d: -26; --s: -.09;
+  background: radial-gradient(circle, rgba(168, 128, 255, .26), rgba(168, 128, 255, .08) 44%, transparent 68%);
+  animation: lg-drift-b 46s ease-in-out infinite alternate;
+}
+html.lg2 .ambient .o3 {
+  width: 60vmax; height: 60vmax; left: 12%; bottom: -34vmax; --d: 20; --s: -.12;
+  background: radial-gradient(circle, rgba(70, 190, 255, .2), rgba(70, 190, 255, .06) 46%, transparent 68%);
+  animation: lg-drift-c 52s ease-in-out infinite alternate;
+}
+html.lg2 .ambient .b {
+  border: 1px solid rgba(220, 235, 255, .26);
+  background: radial-gradient(circle at 30% 26%, rgba(255, 255, 255, .36), rgba(190, 210, 255, .1) 34%, rgba(120, 120, 255, .14) 66%, rgba(200, 180, 255, .26));
+  box-shadow: inset 8px 10px 22px rgba(255, 255, 255, .14), inset -12px -14px 28px rgba(110, 130, 255, .2), 0 30px 60px rgba(0, 0, 0, .35);
+  opacity: .4;
+}
+html.lg2 .ambient .b1 { width: 19vmax; height: 19vmax; right: 7%; top: 46%; --d: -52; --s: -.16; animation: lg-bob-a 21s ease-in-out infinite alternate; }
+html.lg2 .ambient .b2 { width: 11vmax; height: 11vmax; left: 5%; top: 62%; --d: 40; --s: -.22; animation: lg-bob-b 17s ease-in-out infinite alternate; }
+@keyframes lg-drift-a { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(9vmax, 7vmax, 0) scale(1.12); } }
+@keyframes lg-drift-b { from { transform: translate3d(0, 0, 0) scale(1.05); } to { transform: translate3d(-8vmax, 9vmax, 0) scale(.92); } }
+@keyframes lg-drift-c { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(10vmax, -6vmax, 0) scale(1.14); } }
+@keyframes lg-bob-a { from { transform: translate3d(0, 0, 0) rotate(0deg); } to { transform: translate3d(-3vmax, -5vmax, 0) rotate(8deg); } }
+@keyframes lg-bob-b { from { transform: translate3d(0, 0, 0) rotate(0deg); } to { transform: translate3d(4vmax, -4vmax, 0) rotate(-10deg); } }
+
+/* The showcase had a solid fill: let the ambient light show through it. */
+html.lg2 #home .showcase {
+  background: radial-gradient(ellipse at 75% 20%, #29315333, transparent 48%), rgba(8, 11, 19, .58);
+}
+
+/* --- Large glass surfaces: lens edge, depth shadow that follows the tilt --- */
+html.lg2 :is(.glass-panel, .shop-card, .contact-aside) {
+  position: relative;
+  isolation: isolate;
+  border-color: rgba(255, 255, 255, .3);
+  -webkit-backdrop-filter: blur(22px) saturate(175%) brightness(1.07);
+  backdrop-filter: blur(22px) saturate(175%) brightness(1.07);
+  box-shadow:
+    calc(var(--glass-px, 0) * -18px) calc(26px + var(--glass-py, 0) * -12px) 64px rgba(0, 4, 19, .5),
+    inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, .55),
+    inset -1.5px -1.5px 1px -1px rgba(165, 190, 255, .35),
+    inset 0 0 38px rgba(190, 210, 255, .07),
+    inset 0 -22px 40px -22px rgba(120, 150, 255, .12);
+}
+html.lg2 .glass-panel {
+  background: linear-gradient(142deg, rgba(255, 255, 255, .17), rgba(190, 208, 255, .05) 38%, rgba(120, 150, 235, .06) 66%, rgba(255, 255, 255, .11));
+}
+html.lg2 .glass-panel::before {
+  background: radial-gradient(circle at var(--glass-x, 24%) var(--glass-y, 0%), rgba(213, 230, 255, .2), transparent 56%);
+}
+html.lg2 :is(.shop-card, .contact-aside) {
+  background:
+    radial-gradient(circle at var(--glass-x, 30%) var(--glass-y, 0%), rgba(236, 243, 255, .22), transparent 54%),
+    linear-gradient(142deg, rgba(255, 255, 255, .17), rgba(190, 208, 255, .05) 38%, rgba(120, 150, 235, .06) 66%, rgba(255, 255, 255, .11));
+}
+html.lg2 :is(.glass-panel, .shop-card, .contact-aside):hover {
+  border-color: rgba(255, 255, 255, .5);
+  box-shadow:
+    calc(var(--glass-px, 0) * -22px) calc(34px + var(--glass-py, 0) * -14px) 80px rgba(0, 4, 19, .58),
+    inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, .8),
+    inset -1.5px -1.5px 1px -1px rgba(180, 205, 255, .5),
+    inset 0 0 44px rgba(200, 220, 255, .1),
+    inset 0 -22px 40px -22px rgba(120, 150, 255, .18),
+    0 0 36px rgba(150, 179, 255, .14);
+}
+html.lg2 .summary { border-radius: 0 26px 26px 0; }
+
+/* Top bar: a floating lens */
+html.lg2 .topbar {
+  border-color: rgba(255, 255, 255, .3);
+  background: linear-gradient(120deg, rgba(255, 255, 255, .17), rgba(150, 175, 235, .07) 46%, rgba(255, 255, 255, .1));
+  -webkit-backdrop-filter: blur(26px) saturate(180%) brightness(1.08);
+  backdrop-filter: blur(26px) saturate(180%) brightness(1.08);
+  box-shadow:
+    0 14px 48px rgba(0, 3, 16, .5),
+    inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, .6),
+    inset -1.5px -1.5px 1px -1px rgba(165, 190, 255, .4),
+    inset 0 0 26px rgba(190, 210, 255, .07);
+}
+
+/* Rim light and sheen live in a child layer added by glass-motion.js */
+html.lg2 .glass-fx { position: absolute; inset: 0; z-index: -1; border-radius: inherit; overflow: hidden; pointer-events: none; }
+html.lg2 .glass-fx::before {
+  content: ""; position: absolute; top: -30%; bottom: -30%; left: 0; width: 55%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, .13) 50%, rgba(255, 255, 255, 0) 80%, transparent);
+  transform: translateX(-140%) skewX(-14deg);
+  animation: lg-sheen 13s ease-in-out var(--fx-delay, 0s) infinite;
+}
+html.lg2 .glass-fx::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px;
+  background:
+    radial-gradient(130% 150% at var(--glass-x, 22%) var(--glass-y, 0%), rgba(255, 255, 255, .95), rgba(255, 255, 255, .3) 24%, rgba(255, 255, 255, .07) 52%, transparent 74%),
+    linear-gradient(315deg, rgba(170, 195, 255, .55), rgba(170, 195, 255, 0) 34%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+@keyframes lg-sheen { 0%, 62% { transform: translateX(-140%) skewX(-14deg); } 100% { transform: translateX(330%) skewX(-14deg); } }
+
+/* --- Small glass: buttons, chips, levels, inputs, FAQ, frames --- */
+html.lg2 :is(.round, .button, .showcase-controls button) {
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+  backdrop-filter: blur(14px) saturate(170%);
+  box-shadow:
+    inset 1.5px 1.5px 1px -.5px rgba(255, 255, 255, .75),
+    inset -1.5px -1.5px 1px -.5px rgba(160, 185, 250, .4),
+    inset 0 0 14px rgba(200, 220, 255, .12),
+    0 12px 28px rgba(0, 5, 23, .36);
+}
+html.lg2 :is(.round, .button):hover {
+  box-shadow:
+    inset 0 1px #fff,
+    inset -1.5px -1.5px 1px -.5px rgba(160, 185, 250, .5),
+    0 14px 30px rgba(0, 6, 28, .45),
+    0 0 30px rgba(169, 207, 255, .42);
+}
+html.lg2 :is(.level, .chip, .showcase-tags span) {
+  box-shadow:
+    inset 1px 1px 1px -.5px rgba(255, 255, 255, .45),
+    inset -1px -1px 1px -.5px rgba(165, 190, 255, .25),
+    inset 0 0 14px rgba(190, 210, 255, .06);
+}
+html.lg2 .level.selected, html.lg2 .level:hover {
+  box-shadow:
+    inset 1px 1px 1px -.5px rgba(255, 255, 255, .8),
+    inset -1px -1px 1px -.5px rgba(180, 205, 255, .5),
+    inset 0 0 18px rgba(200, 220, 255, .12),
+    0 8px 28px rgba(151, 178, 255, .2);
+}
+html.lg2 .contact-form :is(input, textarea) {
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  backdrop-filter: blur(10px) saturate(150%);
+  box-shadow:
+    inset 1.5px 1.5px 2px -1px rgba(255, 255, 255, .4),
+    inset -1px -1px 1px -.5px rgba(165, 190, 255, .2),
+    inset 0 0 18px rgba(190, 210, 255, .05);
+}
+html.lg2 .contact-form :is(input, textarea):focus {
+  box-shadow:
+    inset 1.5px 1.5px 2px -1px rgba(255, 255, 255, .7),
+    inset 0 0 22px rgba(200, 220, 255, .1),
+    0 0 0 3px rgba(183, 212, 255, .2),
+    0 0 28px rgba(150, 190, 255, .2);
+}
+html.lg2 #contact .faq details {
+  box-shadow:
+    inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, .5),
+    inset -1.5px -1.5px 1px -1px rgba(165, 190, 255, .3),
+    inset 0 0 26px rgba(190, 210, 255, .05),
+    0 14px 38px rgba(0, 5, 23, .26);
+}
+html.lg2 #contact .faq details:hover, html.lg2 #contact .faq details[open] {
+  box-shadow:
+    inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, .75),
+    inset -1.5px -1.5px 1px -1px rgba(180, 205, 255, .45),
+    inset 0 0 30px rgba(200, 220, 255, .08),
+    0 18px 44px rgba(0, 5, 23, .34);
+}
+html.lg2 :is(.showcase-browser, .film-frame) {
+  box-shadow:
+    0 34px 90px rgba(0, 4, 18, .6),
+    inset 0 1px rgba(255, 255, 255, .5),
+    inset 1px 0 rgba(255, 255, 255, .14),
+    0 0 46px rgba(151, 179, 255, .16);
+}
+html.lg2 .showcase-browser:hover, html.lg2 .showcase-browser:focus-within {
+  box-shadow:
+    0 38px 98px rgba(0, 4, 18, .66),
+    inset 0 1px rgba(255, 255, 255, .7),
+    inset 1px 0 rgba(255, 255, 255, .22),
+    0 0 58px rgba(151, 179, 255, .26);
+}
+
+/* --- Depth: inner objects shift against the tilt, spheres drift at different depths --- */
+html.lg2 .glass-panel .liquid-object { translate: calc(var(--glass-px, 0) * 14px) calc(var(--glass-py, 0) * 10px); }
+html.lg2 .duo-art i:first-child { translate: calc(var(--dpx, 0) * 26px) calc(var(--dpy, 0) * 18px); }
+html.lg2 .duo-art i:last-child { translate: calc(var(--dpx, 0) * -34px) calc(var(--dpy, 0) * -22px); }
+html.lg2 .liquid-object.orb i {
+  animation: floatglass 7s ease-in-out -4s infinite, lg-morph 11s ease-in-out infinite;
+}
+@keyframes lg-morph {
+  0%, 100% { border-radius: 36% 64% 58% 42% / 45% 32% 68% 55%; }
+  33% { border-radius: 58% 42% 40% 60% / 52% 58% 42% 48%; }
+  66% { border-radius: 44% 56% 66% 34% / 38% 48% 52% 62%; }
+}
+
+/* --- Slow float, desktop pointers only; pauses while the surface is in use --- */
+@media (hover: hover) and (pointer: fine) {
+  html.lg2 :is(.glass-panel, .shop-card, .contact-aside, .showcase-browser) {
+    animation: lg-float 9s ease-in-out var(--fx-delay, 0s) infinite alternate;
+  }
+  html.lg2 :is(.glass-panel, .shop-card, .contact-aside, .showcase-browser):is(:hover, :focus-within) {
+    animation-play-state: paused;
+  }
+}
+@keyframes lg-float { from { translate: 0 -3px; } to { translate: 0 4px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  html.lg2 .ambient i, html.lg2 .glass-fx::before, html.lg2 .liquid-object.orb i,
+  html.lg2 :is(.glass-panel, .shop-card, .contact-aside, .showcase-browser) { animation: none !important; }
+}
