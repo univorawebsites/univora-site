@@ -93,9 +93,63 @@
   0%, 68% { transform: translateX(-120%); }
   88%, 100% { transform: translateX(120%); }
 }
-.faq details {
-  background: linear-gradient(130deg, rgba(226, 237, 255, .09), transparent 70%);
-  box-shadow: inset 0 1px rgba(255, 255, 255, .19);
+#contact .faq details {
+  margin-bottom: 12px;
+  padding: 22px 24px;
+  border: 1px solid rgba(220, 235, 255, .3);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(226, 238, 255, .16), rgba(142, 174, 234, .06) 58%, rgba(222, 236, 255, .1));
+  box-shadow: inset 0 1px rgba(255, 255, 255, .32), 0 14px 38px rgba(0, 5, 23, .22);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  backdrop-filter: blur(18px) saturate(145%);
+  transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease;
+}
+#contact .faq details:hover, #contact .faq details[open] {
+  border-color: rgba(226, 239, 255, .57);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .48), 0 18px 44px rgba(0, 5, 23, .28);
+}
+#contact .faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  list-style: none;
+  color: #f2f6ff;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -.02em;
+}
+#contact .faq summary::-webkit-details-marker { display: none; }
+#contact .faq summary::after {
+  content: "+";
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(231, 242, 255, .55);
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(238, 246, 255, .24), rgba(150, 180, 242, .1));
+  box-shadow: inset 0 1px rgba(255, 255, 255, .45);
+  color: #dbe8ff;
+  font: 20px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+#contact .faq details[open] summary::after { content: "−"; }
+#contact .faq summary:focus-visible {
+  outline: 2px solid #dbe8ff;
+  outline-offset: 5px;
+  border-radius: 5px;
+}
+#contact .faq p {
+  max-width: 68ch;
+  margin: 14px 46px 2px 0;
+  color: #c5d2e8;
+  font-size: 14px;
+  line-height: 1.75;
+}
+@media (max-width: 600px) {
+  #contact .faq details { padding: 20px; }
+  #contact .faq p { margin-right: 0; }
 }
 
 /* AXON: dark glass instruments, in their original positions and sizes. */
