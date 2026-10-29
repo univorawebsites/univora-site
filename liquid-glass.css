@@ -68,8 +68,30 @@
   border-color: rgba(255, 255, 255, .48);
   box-shadow: 0 30px 80px rgba(0, 4, 18, .57), inset 0 1px rgba(255, 255, 255, .44), 0 0 42px rgba(151, 179, 255, .12);
 }
+.showcase-browser {
+  transition: border-color .55s ease, box-shadow .55s ease;
+}
+.showcase-browser:hover, .showcase-browser:focus-within {
+  border-color: rgba(235, 244, 255, .8);
+  box-shadow: 0 34px 88px rgba(0, 4, 18, .62), inset 0 1px #ffffffb3, 0 0 48px rgba(151, 179, 255, .2);
+}
 .showcase-chrome {
+  position: relative;
+  overflow: hidden;
   background: linear-gradient(135deg, rgba(230, 240, 255, .32), rgba(69, 84, 120, .31) 50%, rgba(21, 29, 49, .94));
+}
+.showcase-chrome::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 25%, rgba(235, 244, 255, .18) 50%, transparent 75%);
+  transform: translateX(-120%);
+  animation: glass-sheen 12s ease-in-out infinite;
+}
+@keyframes glass-sheen {
+  0%, 68% { transform: translateX(-120%); }
+  88%, 100% { transform: translateX(120%); }
 }
 .faq details {
   background: linear-gradient(130deg, rgba(226, 237, 255, .09), transparent 70%);
@@ -113,7 +135,7 @@ body:has(.scene.play) .journey-visual {
   .glass-motion {
     transform: perspective(1000px) rotateX(var(--glass-rx, 0deg)) rotateY(var(--glass-ry, 0deg));
     transform-style: preserve-3d;
-    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    transition: box-shadow .25s ease, border-color .25s ease;
     will-change: transform;
   }
   .glass-panel.glass-motion:hover {
@@ -122,4 +144,5 @@ body:has(.scene.play) .journey-visual {
 }
 @media (prefers-reduced-motion: reduce) {
   .glass-motion { transform: none; }
+  .showcase-chrome::before { animation: none; }
 }
