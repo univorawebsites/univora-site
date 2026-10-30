@@ -25,6 +25,16 @@
       element.style.setProperty('--fx-delay', `${(-(3 + index * 4.5)).toFixed(1)}s`);
     });
 
+    // The ← → symbols of the hero buttons get their own element, so they can glide independently of the button.
+    document.querySelectorAll('.hero-controls .round').forEach(button => {
+      if (button.querySelector('.glyph')) return;
+      const glyph = document.createElement('span');
+      glyph.className = 'glyph';
+      glyph.textContent = button.textContent;
+      button.textContent = '';
+      button.appendChild(glyph);
+    });
+
     // Orbit lines around the hero cube, placed from the cube's own centre and size.
     const heroStage = document.querySelector('.hero-stage');
     if (heroStage) {
@@ -103,7 +113,7 @@
       toTop.type = 'button';
       toTop.className = 'to-top';
       toTop.setAttribute('aria-label', 'Torna in alto');
-      toTop.textContent = '↑';
+      toTop.innerHTML = '<i>↑</i>';
       shell.appendChild(toTop);
       toTop.addEventListener('click', () => {
         const active = document.querySelector('.page.active');

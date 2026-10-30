@@ -758,13 +758,7 @@ html.lg2 .to-top:active { scale: .92; }
   }
   html.lg2 .topbar { -webkit-backdrop-filter: blur(18px) saturate(170%) brightness(1.06); backdrop-filter: blur(18px) saturate(170%) brightness(1.06); }
 
-  /* press feedback */
-  html.lg2 :is(.round, .button) { transition: background-color .08s linear, color .08s linear, border-color .08s linear, scale .2s cubic-bezier(.2, .8, .2, 1); }
-  html.lg2 .level { transition: background-color .1s ease, border-color .1s ease, scale .2s cubic-bezier(.2, .8, .2, 1); }
-  html.lg2 .showcase-controls button { transition: background .2s, border-color .2s, transform .2s, scale .2s cubic-bezier(.2, .8, .2, 1); }
-  html.lg2 .nav button, html.lg2 #contact .faq summary { transition: scale .2s cubic-bezier(.2, .8, .2, 1); }
-  html.lg2 :is(.round, .button, .level, .showcase-controls button):active { scale: .95; }
-  html.lg2 :is(.nav button, #contact .faq summary):active { scale: .97; }
+  /* (press feedback lives in the "3D glass keys" block at the end of this file) */
 }
 
 /* Tablets with touch (601px and up): the same, plus larger controls where they were tiny */
@@ -786,21 +780,6 @@ html.lg2 .to-top:active { scale: .92; }
 
 /* --- Touch screens have no hover: stop :hover styles from sticking after a tap, add a tap ripple --- */
 @media (hover: none) {
-  html.lg2 :is(.round, .button, .showcase-controls button):hover {
-    background: linear-gradient(140deg, rgba(236, 246, 255, .36), rgba(170, 196, 248, .13) 56%, rgba(255, 255, 255, .14));
-    border-color: rgba(255, 255, 255, .62);
-    color: inherit; transform: none;
-    box-shadow: inset 1.5px 1.5px 1px -.5px rgba(255, 255, 255, .75), inset -1.5px -1.5px 1px -.5px rgba(160, 185, 250, .4), inset 0 0 14px rgba(200, 220, 255, .12), 0 12px 28px rgba(0, 5, 23, .36);
-  }
-  html.lg2 :is(.round, .button, .showcase-controls button):active {
-    background: linear-gradient(135deg, rgba(246, 250, 255, .9), rgba(204, 223, 255, .78));
-    color: #0b1020;
-  }
-  html.lg2 .level:not(.selected):hover {
-    border-color: rgba(255, 255, 255, .32);
-    background: linear-gradient(135deg, rgba(225, 237, 255, .16), rgba(163, 187, 243, .05));
-    box-shadow: inset 1px 1px 1px -.5px rgba(255, 255, 255, .45), inset -1px -1px 1px -.5px rgba(165, 190, 255, .25), inset 0 0 14px rgba(190, 210, 255, .06);
-  }
   html.lg2 :is(.glass-panel, .shop-card, .contact-aside):hover {
     border-color: rgba(255, 255, 255, .3); transform: none;
     box-shadow:
@@ -888,4 +867,156 @@ html.lg2 #contact .faq p {
   color: #e3ebfa;
   font-size: 15px;
   line-height: 1.8;
+}
+
+/* =====================================================================
+   3D glass keys. Every clickable control is a small raised glass object:
+   bevelled edge, top gloss, contact shadow, a lift on hover and a springy
+   press. The motion is driven by three registered numbers (--fill, --lift,
+   --press) so colour, glow, shadow and size all animate together and smoothly.
+   Only paint, shadow and the individual translate/scale properties change:
+   no layout box is resized.
+   ===================================================================== */
+@property --fill  { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --lift  { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --press { syntax: "<number>"; inherits: false; initial-value: 0; }
+
+html.lg2 { --spring: cubic-bezier(.34, 1.56, .64, 1); --glide: cubic-bezier(.2, .8, .2, 1); }
+
+/* Round buttons, call-to-action buttons, preview controls, back-to-top */
+html.lg2.lg2 :is(.round, .button, .showcase-controls button, .to-top) {
+  --sz: 1;
+  border-color: rgba(255, 255, 255, calc(.5 + var(--fill) * .42));
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, calc(.30 + var(--fill) * .45)) 0, rgba(255, 255, 255, calc(.05 + var(--fill) * .25)) 46%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(145deg, rgba(236, 246, 255, calc(.28 + var(--fill) * .60)), rgba(170, 196, 248, calc(.12 + var(--fill) * .62)) 56%, rgba(255, 255, 255, calc(.14 + var(--fill) * .52)));
+  color: color-mix(in srgb, #f4f4f1 calc((1 - var(--fill)) * 100%), #0b1020);
+  text-shadow: 0 1px 2px rgba(0, 5, 25, calc(.55 - var(--fill) * .55)), 0 1px 0 rgba(255, 255, 255, calc(var(--fill) * .7));
+  box-shadow:
+    inset 0 calc(var(--press) * 3px) calc(var(--press) * 8px) rgba(0, 10, 40, calc(var(--press) * .38)),
+    inset 0 1.5px 1px rgba(255, 255, 255, calc(.55 + var(--fill) * .4)),
+    inset 0 -3px 5px rgba(90, 120, 210, calc(.22 + var(--fill) * .06)),
+    inset 1.5px 0 1px -1px rgba(255, 255, 255, .4),
+    inset -1.5px 0 1px -1px rgba(160, 185, 250, .35),
+    0 1px 1px rgba(0, 5, 25, .55),
+    0 calc((7px - var(--press) * 5px + var(--lift) * 7px) * var(--sz)) calc((16px - var(--press) * 9px + var(--lift) * 10px) * var(--sz)) rgba(0, 5, 25, calc(.36 - var(--press) * .14 + var(--lift) * .1)),
+    0 0 calc(var(--fill) * 30px * var(--sz)) rgba(169, 207, 255, calc(var(--fill) * .5));
+  transition: --fill .4s var(--glide), --lift .6s var(--spring), --press .4s var(--spring), transform .38s var(--glide);
+}
+html.lg2.lg2 .showcase-controls button { --sz: .5; }
+html.lg2.lg2 :is(.round, .button, .showcase-controls button) {
+  translate: 0 calc(var(--press) * 1.5px + var(--lift) * -2px);
+  scale: calc(1 + var(--lift) * .045 - var(--press) * .075);
+}
+html.lg2.lg2 button.to-top {
+  scale: calc(1 + var(--lift) * .06 - var(--press) * .08);
+  transition: opacity .3s ease, translate .3s var(--glide), visibility .3s, --fill .4s var(--glide), --lift .6s var(--spring), --press .4s var(--spring);
+}
+html.lg2 .to-top i { display: block; font-style: normal; transition: translate .55s var(--spring); }
+@media (hover: hover) {
+  html.lg2.lg2 :is(.round, .button, .showcase-controls button, .to-top):hover { --fill: 1; --lift: 1; }
+  html.lg2.lg2 .showcase-controls button:hover { transform: none; }
+}
+html.lg2.lg2 :is(.round, .button, .showcase-controls button, .to-top):active { --fill: .85; --lift: 0; --press: 1; }
+
+/* The arrow inside the buttons moves forward on its own, with a little overshoot */
+html.lg2 .button .arrow, html.lg2 .round .glyph { display: block; transition: translate .6s var(--spring); }
+html.lg2 .button .arrow { display: inline-block; }
+html.lg2 .showcase-open span { transition: transform .6s var(--spring); }
+@media (hover: hover) {
+  html.lg2 .button:hover .arrow { translate: 3px -3px; }
+  html.lg2 .hero-copy .button:hover .arrow { translate: 0 3px; }
+  html.lg2 #prev:hover .glyph { translate: -4px 0; }
+  html.lg2 #next:hover .glyph { translate: 4px 0; }
+  html.lg2 .to-top:hover i { translate: 0 -3px; }
+}
+html.lg2 #prev:active .glyph { translate: -6px 0; }
+html.lg2 #next:active .glyph { translate: 6px 0; }
+html.lg2 .to-top:active i { translate: 0 -5px; }
+
+/* Plan tiles (Essential / Signature / Universe): raised when hovered, glowing when chosen, pressed when tapped */
+html.lg2.lg2 .level {
+  border-color: rgba(255, 255, 255, calc(.32 + var(--fill) * .52));
+  background: linear-gradient(135deg, rgba(201, 220, 255, calc(.15 + var(--fill) * .20)), rgba(177, 202, 255, calc(.04 + var(--fill) * .09)));
+  box-shadow:
+    inset 0 calc(var(--press) * 3px) calc(var(--press) * 8px) rgba(0, 10, 40, calc(var(--press) * .35)),
+    inset 1px 1px 1px -.5px rgba(255, 255, 255, calc(.45 + var(--fill) * .4)),
+    inset -1px -1px 1px -.5px rgba(165, 190, 255, calc(.25 + var(--fill) * .25)),
+    inset 0 0 calc(14px + var(--fill) * 8px) rgba(190, 210, 255, calc(.06 + var(--fill) * .08)),
+    0 calc(2px + var(--lift) * 8px) calc(6px + var(--lift) * 20px) rgba(0, 5, 25, calc(.1 + var(--lift) * .28)),
+    0 0 calc(var(--fill) * 28px) rgba(151, 178, 255, calc(var(--fill) * .2));
+  translate: 0 calc(var(--press) * 1px + var(--lift) * -3px);
+  scale: calc(1 + var(--lift) * .015 - var(--press) * .03);
+  transition: --fill .4s var(--glide), --lift .6s var(--spring), --press .4s var(--spring);
+}
+html.lg2.lg2 .level small { color: color-mix(in srgb, #8f8f8a calc((1 - var(--fill)) * 100%), #d6e1f6); }
+html.lg2.lg2 .level.selected { --fill: 1; --lift: 0; }
+@media (hover: hover) {
+  html.lg2.lg2 .level:not(.selected):hover { --fill: .55; --lift: 1; }
+  html.lg2.lg2 .level.selected:hover { --lift: 1; }
+}
+html.lg2.lg2 .level:active { --lift: 0; --press: 1; }
+
+/* Menu: a glass pill rises behind the hovered or current page */
+html.lg2.lg2 .nav button { transition: color .35s ease, translate .55s var(--spring), scale .55s var(--spring); }
+html.lg2.lg2 .nav button::before {
+  content: ""; position: absolute; z-index: -1; inset: -5px -13px; border-radius: 999px; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .26), rgba(255, 255, 255, 0) 52%),
+    linear-gradient(145deg, rgba(222, 235, 255, .22), rgba(150, 180, 245, .08));
+  box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, .55), inset 0 -3px 5px rgba(90, 120, 210, .2), 0 6px 14px rgba(0, 5, 25, .3);
+  opacity: 0; scale: .7;
+  transition: opacity .35s ease, scale .6s var(--spring);
+}
+html.lg2.lg2 .nav button.active::before { opacity: .72; scale: 1; }
+@media (hover: hover) {
+  html.lg2.lg2 .nav button:hover { color: #fff; translate: 0 -1px; }
+  html.lg2.lg2 .nav button:hover::before { opacity: 1; scale: 1; }
+}
+html.lg2.lg2 .nav button:active { scale: .93; }
+@media (max-width: 600px) { html.lg2.lg2 .nav button::before { inset: 4px 8px; } }
+
+/* Logo: a coin-flip when touched */
+html.lg2.lg2 .brand { perspective: 280px; }
+html.lg2.lg2 .brand-mark { transition: transform .38s var(--glide), box-shadow .25s ease, background-color .16s ease, rotate 1s var(--spring); }
+html.lg2.lg2 .brand-mark.is-tracking { transition-duration: .1s, .2s, .12s, 1s; }
+@media (hover: hover) { html.lg2.lg2 .brand:hover .brand-mark { rotate: y 360deg; } }
+html.lg2.lg2 .brand:active .brand-mark { rotate: y 360deg; }
+
+/* FAQ: the plus is drawn, so its vertical bar can fold away into a minus while the glass bead turns */
+html.lg2.lg2 #contact .faq summary::after,
+html.lg2.lg2 #contact .faq details[open] summary::after {
+  content: ""; font-size: 0;
+  background-image:
+    linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor),
+    linear-gradient(180deg, rgba(255, 255, 255, .3), rgba(255, 255, 255, 0) 52%),
+    linear-gradient(145deg, rgba(238, 246, 255, .24), rgba(150, 180, 242, .1));
+  background-repeat: no-repeat;
+  background-position: 50% 50%, 50% 50%, 0 0, 0 0;
+  background-size: 11px 1.6px, 1.6px 11px, 100% 100%, 100% 100%;
+  box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, .55), inset 0 -3px 5px rgba(90, 120, 210, .22), 0 4px 10px rgba(0, 5, 25, .35);
+  transition: background-size .45s var(--glide), rotate .65s var(--spring), scale .55s var(--spring), box-shadow .35s ease;
+}
+html.lg2.lg2 #contact .faq details[open] summary::after {
+  background-size: 11px 1.6px, 1.6px 0, 100% 100%, 100% 100%;
+  rotate: 180deg;
+}
+@media (hover: hover) {
+  html.lg2.lg2 #contact .faq summary:hover::after {
+    scale: 1.14;
+    box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, .8), inset 0 -3px 5px rgba(90, 120, 210, .28), 0 6px 14px rgba(0, 5, 25, .4), 0 0 18px rgba(169, 207, 255, .45);
+  }
+}
+html.lg2.lg2 #contact .faq summary:active::after { scale: .88; }
+
+/* Range thumb: swells with a spring when grabbed */
+html.lg2 .range::-webkit-slider-thumb { transition: transform .55s var(--spring), box-shadow .3s ease; }
+@media (hover: hover) { html.lg2 .range:hover::-webkit-slider-thumb { transform: scale(1.1); } }
+html.lg2 .range:active::-webkit-slider-thumb { transform: scale(1.2); }
+
+@media (prefers-reduced-motion: reduce) {
+  html.lg2.lg2 :is(.round, .button, .showcase-controls button, .to-top, .level, .nav button, .brand-mark),
+  html.lg2.lg2 .nav button::before, html.lg2.lg2 #contact .faq summary::after,
+  html.lg2 .button .arrow, html.lg2 .round .glyph, html.lg2 .to-top i { transition: none; }
 }
