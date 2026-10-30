@@ -38,6 +38,43 @@
       addEventListener('resize', placeOrbits);
     }
 
+    // Anything decorative that scrolls out of view stops animating (saves battery and keeps scrolling smooth).
+    if ('IntersectionObserver' in window) {
+      const pauser = new IntersectionObserver(entries => {
+        for (const entry of entries) entry.target.classList.toggle('lg-off', !entry.isIntersecting);
+      }, { rootMargin: '120px' });
+      document.querySelectorAll('.glass-panel, .shop-card, .contact-aside, .showcase-browser, .hero-orbits').forEach(el => pauser.observe(el));
+    }
+
+    // Glass budget slider: the filled part of the track follows the thumb.
+    const budgetRange = document.getElementById('budget');
+    if (budgetRange) {
+      const paintRange = () => {
+        const min = Number(budgetRange.min) || 0;
+        const max = Number(budgetRange.max) || 100;
+        budgetRange.style.setProperty('--p', ((Number(budgetRange.value) - min) / (max - min)).toFixed(4));
+      };
+      budgetRange.addEventListener('input', paintRange);
+      paintRange();
+    }
+
+    // Touch screens: a short light bloom from the exact point that was tapped.
+    if (matchMedia('(hover: none)').matches) {
+      document.addEventListener('pointerdown', event => {
+        const target = event.target instanceof Element ? event.target.closest('.button, .level') : null;
+        if (!target) return;
+        const box = target.getBoundingClientRect();
+        target.style.setProperty('--tx', `${(event.clientX - box.left).toFixed(0)}px`);
+        target.style.setProperty('--ty', `${(event.clientY - box.top).toFixed(0)}px`);
+        target.classList.remove('tap');
+        void target.offsetWidth;
+        target.classList.add('tap');
+      }, { passive: true });
+      document.addEventListener('animationend', event => {
+        if (event.animationName === 'lg-ripple' && event.target instanceof Element) event.target.classList.remove('tap');
+      });
+    }
+
     // Ambient orbs and glass bubbles behind the pages, so the glass has something to refract.
     const shell = document.querySelector('.shell');
     if (shell) {
@@ -54,6 +91,44 @@
       line.innerHTML = '<i></i>';
       shell.appendChild(line);
 
+      // Floating "back to top" button, shown after the first screen.
+      const toTop = document.createElement('button');
+      toTop.type = 'button';
+      toTop.className = 'to-top';
+      toTop.setAttribute('aria-label', 'Torna in alto');
+      toTop.textContent = '↑';
+      shell.appendChild(toTop);
+      toTop.addEventListener('click', () => {
+        const active = document.querySelector('.page.active');
+        if (active) active.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+      });
+
+      // Touch screens have no cursor: the light on each glass card slides as the card travels up the screen.
+      let touchLight = null;
+      if (!finePointer && !reduced) {
+        const cards = document.querySelectorAll('.glass-panel, .shop-card, .contact-aside');
+        const inView = new Set();
+        if ('IntersectionObserver' in window) {
+          const watcher = new IntersectionObserver(entries => {
+            for (const entry of entries) entry.isIntersecting ? inView.add(entry.target) : inView.delete(entry.target);
+            if (touchLight) touchLight();
+          }, { rootMargin: '60px' });
+          cards.forEach(card => watcher.observe(card));
+        }
+        touchLight = () => {
+          const half = innerHeight / 2;
+          for (const card of inView) {
+            const box = card.getBoundingClientRect();
+            const t = Math.max(-1, Math.min(1, (box.top + box.height / 2 - half) / half));
+            card.style.setProperty('--glass-x', `${(50 - t * 34).toFixed(1)}%`);
+            card.style.setProperty('--glass-y', `${(30 + t * 28).toFixed(1)}%`);
+            card.style.setProperty('--glass-px', (-t * .45).toFixed(3));
+            card.style.setProperty('--glass-py', (t * .9).toFixed(3));
+          }
+        };
+        addEventListener('resize', () => touchLight());
+      }
+
       // Scroll depth: the light drifts at its own speed while the page scrolls over it.
       let scrollFrame = 0;
       const syncScroll = () => {
@@ -62,6 +137,8 @@
         if (!reduced) ambient.style.setProperty('--amb-y', page ? Math.round(page.scrollTop) : 0);
         const max = page ? page.scrollHeight - page.clientHeight : 0;
         shell.style.setProperty('--scroll-p', max > 0 ? Math.min(1, page.scrollTop / max).toFixed(4) : 0);
+        toTop.classList.toggle('show', !!page && page.scrollTop > innerHeight * .8);
+        if (touchLight) touchLight();
       };
       const scheduleScroll = () => { if (!scrollFrame) scrollFrame = requestAnimationFrame(syncScroll); };
       document.addEventListener('scroll', event => {

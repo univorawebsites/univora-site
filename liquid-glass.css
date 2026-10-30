@@ -642,3 +642,193 @@ html.lg2 .scroll-line i {
   background: linear-gradient(90deg, rgba(120, 160, 255, 0), #a9c4ff 40%, #e4dcff);
   box-shadow: 0 0 10px rgba(160, 190, 255, .7);
 }
+
+/* =====================================================================
+   Touch, tablet and accessibility pass.
+   Desktop (mouse) layout is untouched: every size-related rule below sits
+   inside a touch media query, a tablet width range, or only adds an invisible
+   hit area. Safe-area rules resolve to 0 on screens without a notch.
+   ===================================================================== */
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* --- Notch / home-indicator safe areas (0 when there is none) --- */
+html.lg2 { --pad: max(clamp(22px, 6vw, 100px), calc(env(safe-area-inset-left, 0px) + 14px)); }
+html.lg2 .topbar { margin-left: env(safe-area-inset-left, 0px); margin-right: env(safe-area-inset-right, 0px); }
+html.lg2 .site-footer { padding-bottom: calc(var(--sf-pb, 28px) + env(safe-area-inset-bottom, 0px)); }
+@media (max-width: 600px) { html.lg2 .site-footer { --sf-pb: 23px; } html.lg2 .summary { border-radius: 0; } }
+
+/* --- Keyboard focus: a clear glass ring (visible only for keyboard / assistive input) --- */
+html.lg2 :is(.button, .round, .level, .nav button, .brand, .showcase-controls button, .showcase-open, .to-top, #contact .faq summary):focus-visible {
+  outline: 2px solid rgba(220, 233, 255, .95);
+  outline-offset: 3px;
+}
+
+/* --- Glass range slider (box height is kept identical to the native one) --- */
+html.lg2 .range { -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; }
+@media (min-width: 601px) { html.lg2 .range { height: 16px; } }
+html.lg2 .range:focus { outline: none; }
+html.lg2 .range:focus-visible { outline: 2px solid rgba(220, 233, 255, .95); outline-offset: 6px; border-radius: 8px; }
+html.lg2 .range::-webkit-slider-runnable-track {
+  height: 6px; border-radius: 6px;
+  background:
+    linear-gradient(90deg, rgba(176, 202, 255, .95), rgba(212, 194, 255, .92)) 0 0 / calc(11px + (100% - 22px) * var(--p, .25)) 100% no-repeat,
+    rgba(255, 255, 255, .14);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .5), inset 0 -1px rgba(255, 255, 255, .16), 0 0 14px rgba(150, 185, 255, .16);
+}
+html.lg2 .range::-moz-range-track {
+  height: 6px; border-radius: 6px; background: rgba(255, 255, 255, .14);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .5), inset 0 -1px rgba(255, 255, 255, .16);
+}
+html.lg2 .range::-moz-range-progress {
+  height: 6px; border-radius: 6px 0 0 6px; background: linear-gradient(90deg, rgba(176, 202, 255, .95), rgba(212, 194, 255, .92));
+}
+html.lg2 .range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; box-sizing: border-box;
+  width: 22px; height: 22px; margin-top: -8px; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .8);
+  background: radial-gradient(circle at 32% 26%, #ffffff, #e2ecff 36%, rgba(168, 196, 255, .9) 72%, rgba(128, 156, 240, .95));
+  box-shadow: inset 0 1px 1px #fff, inset -2px -3px 5px rgba(110, 135, 235, .45), 0 3px 10px rgba(0, 5, 25, .55), 0 0 16px rgba(160, 195, 255, .45);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+html.lg2 .range::-moz-range-thumb {
+  box-sizing: border-box; width: 22px; height: 22px; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .8);
+  background: radial-gradient(circle at 32% 26%, #ffffff, #e2ecff 36%, rgba(168, 196, 255, .9) 72%, rgba(128, 156, 240, .95));
+  box-shadow: inset 0 1px 1px #fff, inset -2px -3px 5px rgba(110, 135, 235, .45), 0 3px 10px rgba(0, 5, 25, .55), 0 0 16px rgba(160, 195, 255, .45);
+}
+html.lg2 .range:active::-webkit-slider-thumb { transform: scale(1.12); box-shadow: inset 0 1px 1px #fff, inset -2px -3px 5px rgba(110, 135, 235, .45), 0 4px 14px rgba(0, 5, 25, .6), 0 0 24px rgba(170, 205, 255, .7); }
+
+/* --- Pause the decorative animations of anything that is off screen --- */
+html.lg2 .lg-off, html.lg2 .lg-off > .glass-fx::before, html.lg2 .hero-orbits.lg-off i { animation-play-state: paused; }
+
+/* --- Floating "back to top" glass button --- */
+html.lg2 .to-top {
+  position: absolute; z-index: 11; width: 46px; height: 46px; padding: 0; border-radius: 50%;
+  right: max(18px, calc(env(safe-area-inset-right, 0px) + 14px));
+  bottom: max(18px, calc(env(safe-area-inset-bottom, 0px) + 14px));
+  display: grid; place-items: center; color: #eaf1ff; font-size: 18px; line-height: 1; cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, .5);
+  background: var(--lg-grain), linear-gradient(140deg, rgba(236, 246, 255, .34), rgba(170, 196, 248, .13) 56%, rgba(255, 255, 255, .14));
+  background-size: 160px 160px, auto;
+  -webkit-backdrop-filter: blur(14px) saturate(170%); backdrop-filter: blur(14px) saturate(170%);
+  box-shadow: inset 1.5px 1.5px 1px -.5px rgba(255, 255, 255, .75), inset -1.5px -1.5px 1px -.5px rgba(160, 185, 250, .4), 0 12px 28px rgba(0, 5, 23, .45);
+  opacity: 0; visibility: hidden; pointer-events: none; translate: 0 14px;
+  transition: opacity .3s ease, translate .3s cubic-bezier(.2, .8, .2, 1), visibility .3s, scale .2s cubic-bezier(.2, .8, .2, 1);
+}
+html.lg2 .to-top.show { opacity: 1; visibility: visible; pointer-events: auto; translate: 0 0; }
+html.lg2 .to-top:active { scale: .92; }
+@media (prefers-reduced-motion: reduce) { html.lg2 .to-top { transition: none; } }
+
+/* --- Tablet portrait (≈800–940px): the preview column keeps its width instead of leaving a gap --- */
+@media (min-width: 801px) and (max-width: 940px) {
+  #home .showcase-item { grid-template-columns: 230px minmax(0, 1fr); }
+  #home .showcase-item:nth-of-type(2) { grid-template-columns: minmax(0, 1fr) 230px; }
+}
+
+/* --- Touch screens (phones, iPad): bigger invisible hit areas, no zoom on focus, calmer GPU load --- */
+@media (pointer: coarse) {
+  html.lg2 :is(a, button, summary, .level, textarea, input:not([type="range"])) {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  html.lg2 .page { overscroll-behavior-y: contain; }
+
+  /* iOS zooms the page when a field under 16px gets focus */
+  html.lg2 .contact-form :is(input, textarea) { font-size: 16px; }
+
+  /* hit areas: the drawn size stays the same, only the touchable zone grows */
+  html.lg2 .round { position: relative; }
+  html.lg2 .round::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; }
+  html.lg2 .brand { position: relative; }
+  html.lg2 .brand::before { content: ""; position: absolute; inset: -10px -8px; }
+  html.lg2 .showcase-open { position: relative; }
+  html.lg2 .showcase-open::before { content: ""; position: absolute; inset: -12px -10px; }
+  html.lg2 :is(.contact-aside, .form-note) a { position: relative; }
+  html.lg2 :is(.contact-aside, .form-note) a::before { content: ""; position: absolute; inset: -12px -6px; }
+  html.lg2 #contact .faq summary { padding-block: 12px; margin-block: -12px; }
+
+  /* previews: let a swipe on the preview scroll the page instead of getting trapped inside the frame */
+  html.lg2 .showcase-browser iframe { pointer-events: none; }
+
+  /* lighter glass: smaller blur radii keep scrolling smooth on phone GPUs */
+  html.lg2 :is(.glass-panel, .shop-card, .contact-aside) {
+    -webkit-backdrop-filter: blur(14px) saturate(165%) brightness(1.06);
+    backdrop-filter: blur(14px) saturate(165%) brightness(1.06);
+  }
+  html.lg2 .topbar { -webkit-backdrop-filter: blur(18px) saturate(170%) brightness(1.06); backdrop-filter: blur(18px) saturate(170%) brightness(1.06); }
+
+  /* press feedback */
+  html.lg2 :is(.round, .button) { transition: background-color .08s linear, color .08s linear, border-color .08s linear, scale .2s cubic-bezier(.2, .8, .2, 1); }
+  html.lg2 .level { transition: background-color .1s ease, border-color .1s ease, scale .2s cubic-bezier(.2, .8, .2, 1); }
+  html.lg2 .showcase-controls button { transition: background .2s, border-color .2s, transform .2s, scale .2s cubic-bezier(.2, .8, .2, 1); }
+  html.lg2 .nav button, html.lg2 #contact .faq summary { transition: scale .2s cubic-bezier(.2, .8, .2, 1); }
+  html.lg2 :is(.round, .button, .level, .showcase-controls button):active { scale: .95; }
+  html.lg2 :is(.nav button, #contact .faq summary):active { scale: .97; }
+}
+
+/* Tablets with touch (601px and up): the same, plus larger controls where they were tiny */
+@media (pointer: coarse) and (min-width: 601px) {
+  html.lg2 .nav button { padding-block: 16px; margin-block: -12px; padding-inline: 10px; margin-inline: -10px; }
+  html.lg2 .nav button:after { bottom: 3px; left: 10px; right: 10px; }
+  html.lg2 .showcase-chrome { height: 48px; }
+  html.lg2 .showcase-controls button { position: relative; width: 38px; height: 38px; font-size: 15px; }
+  html.lg2 .showcase-controls button::after { content: ""; position: absolute; inset: -3px; }
+  html.lg2 .range { box-sizing: content-box; padding-block: 14px; margin-block: -14px; }
+  html.lg2 .range::-webkit-slider-thumb { width: 28px; height: 28px; margin-top: -11px; }
+  html.lg2 .range::-moz-range-thumb { width: 28px; height: 28px; }
+}
+@media (pointer: coarse) and (max-width: 600px) {
+  html.lg2 .range { box-sizing: content-box; padding-block: 8px; margin-block: -8px; }
+  html.lg2 .range::-webkit-slider-thumb { width: 28px; height: 28px; margin-top: -11px; }
+  html.lg2 .range::-moz-range-thumb { width: 28px; height: 28px; }
+}
+
+/* --- Touch screens have no hover: stop :hover styles from sticking after a tap, add a tap ripple --- */
+@media (hover: none) {
+  html.lg2 :is(.round, .button, .showcase-controls button):hover {
+    background: linear-gradient(140deg, rgba(236, 246, 255, .36), rgba(170, 196, 248, .13) 56%, rgba(255, 255, 255, .14));
+    border-color: rgba(255, 255, 255, .62);
+    color: inherit; transform: none;
+    box-shadow: inset 1.5px 1.5px 1px -.5px rgba(255, 255, 255, .75), inset -1.5px -1.5px 1px -.5px rgba(160, 185, 250, .4), inset 0 0 14px rgba(200, 220, 255, .12), 0 12px 28px rgba(0, 5, 23, .36);
+  }
+  html.lg2 :is(.round, .button, .showcase-controls button):active {
+    background: linear-gradient(135deg, rgba(246, 250, 255, .9), rgba(204, 223, 255, .78));
+    color: #0b1020;
+  }
+  html.lg2 .level:not(.selected):hover {
+    border-color: rgba(255, 255, 255, .32);
+    background: linear-gradient(135deg, rgba(225, 237, 255, .16), rgba(163, 187, 243, .05));
+    box-shadow: inset 1px 1px 1px -.5px rgba(255, 255, 255, .45), inset -1px -1px 1px -.5px rgba(165, 190, 255, .25), inset 0 0 14px rgba(190, 210, 255, .06);
+  }
+  html.lg2 :is(.glass-panel, .shop-card, .contact-aside):hover {
+    border-color: rgba(255, 255, 255, .3); transform: none;
+    box-shadow:
+      calc(var(--glass-px, 0) * -18px) calc(26px + var(--glass-py, 0) * -12px) 64px rgba(0, 4, 19, .5),
+      inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, .55),
+      inset -1.5px -1.5px 1px -1px rgba(165, 190, 255, .35),
+      inset 0 0 38px rgba(190, 210, 255, .07),
+      inset 0 -22px 40px -22px rgba(120, 150, 255, .12);
+  }
+  html.lg2 .showcase-browser:hover {
+    border-color: rgba(255, 255, 255, .48);
+    box-shadow: 0 34px 90px rgba(0, 4, 18, .6), inset 0 1px rgba(255, 255, 255, .5), inset 1px 0 rgba(255, 255, 255, .14), 0 0 46px rgba(151, 179, 255, .16);
+  }
+  html.lg2 .showcase-open:hover { color: #fff; border-color: #fff9; }
+  html.lg2 #contact .faq details:not([open]):hover {
+    border-color: rgba(220, 235, 255, .3);
+    box-shadow: inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, .5), inset -1.5px -1.5px 1px -1px rgba(165, 190, 255, .3), inset 0 0 26px rgba(190, 210, 255, .05), 0 14px 38px rgba(0, 5, 23, .26);
+  }
+  html.lg2 .nav button:not(.active):hover:after { transform: scaleX(0); transform-origin: right; }
+
+  /* tap ripple (a short light bloom from the touch point) */
+  html.lg2 :is(.button, .level) { position: relative; overflow: hidden; }
+  html.lg2 .level :is(b, small) { position: relative; }
+  html.lg2 :is(.button, .level).tap::before {
+    content: ""; position: absolute; left: var(--tx, 50%); top: var(--ty, 50%); width: 12px; height: 12px; margin: -6px 0 0 -6px;
+    border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle, rgba(255, 255, 255, .75), rgba(190, 214, 255, .3) 55%, transparent 72%);
+    animation: lg-ripple .65s ease-out forwards;
+  }
+}
+@keyframes lg-ripple { from { transform: scale(1); opacity: .9; } to { transform: scale(18); opacity: 0; } }
