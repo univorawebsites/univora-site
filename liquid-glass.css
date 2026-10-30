@@ -871,3 +871,21 @@ html.lg2 .to-top:active { scale: .92; }
 @media (max-width: 850px) {
   #home-details .glass-modules { display: none; }
 }
+
+/* Opaque FAQ glass keeps longer answers readable over the moving backdrop. */
+html.lg2 #contact .faq details {
+  border-color: rgba(213, 228, 255, .34);
+  background: linear-gradient(145deg, #18233a, #111a2d 62%, #1a2640);
+}
+html.lg2 #contact .faq details[open] {
+  border-color: rgba(227, 239, 255, .62);
+  background: linear-gradient(145deg, #202e49, #152039 62%, #1d2b48);
+}
+html.lg2 #contact .faq summary { color: #f7f9ff; }
+html.lg2 #contact .faq p {
+  max-width: 70ch;
+  margin-top: 18px;
+  color: #e3ebfa;
+  font-size: 15px;
+  line-height: 1.8;
+}
