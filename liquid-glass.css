@@ -832,3 +832,42 @@ html.lg2 .to-top:active { scale: .92; }
   }
 }
 @keyframes lg-ripple { from { transform: scale(1); opacity: .9; } to { transform: scale(18); opacity: 0; } }
+
+/* Three independently moving glass sheets in the home introduction cards. */
+#home-details .glass-panel { isolation: isolate; }
+#home-details .glass-panel > :not(.glass-fx):not(.glass-modules) { position: relative; z-index: 2; }
+#home-details .glass-modules { position: absolute; inset: 0; z-index: 1; overflow: hidden; border-radius: inherit; pointer-events: none; opacity: .58; transition: opacity .45s ease; }
+#home-details .glass-panel:hover .glass-modules { opacity: 1; }
+#home-details .glass-modules span {
+  position: absolute;
+  display: block;
+  border: 1px solid rgba(236, 244, 255, .36);
+  border-radius: 19px;
+  background: linear-gradient(135deg, rgba(245, 249, 255, .19), rgba(172, 196, 245, .035) 55%, rgba(218, 230, 255, .13));
+  box-shadow: inset 0 1px rgba(255, 255, 255, .37), inset 0 -1px rgba(177, 199, 255, .14), 0 15px 32px rgba(4, 9, 28, .2);
+  -webkit-backdrop-filter: blur(9px) saturate(150%);
+  backdrop-filter: blur(9px) saturate(150%);
+  transition: transform .7s cubic-bezier(.16, 1, .3, 1), border-color .5s ease, box-shadow .5s ease;
+}
+#home-details .glass-modules span:nth-child(1) {
+  left: 29%; top: 16%; width: 36%; height: 41%;
+  transform: translate3d(calc(var(--glass-px, 0) * -24px), calc(var(--glass-py, 0) * -17px), 0) rotate(-12deg);
+}
+#home-details .glass-modules span:nth-child(2) {
+  left: 46%; top: 21%; width: 30%; height: 36%;
+  transform: translate3d(calc(var(--glass-px, 0) * 31px), calc(var(--glass-py, 0) * 18px), 0) rotate(12deg);
+}
+#home-details .glass-modules span:nth-child(3) {
+  left: 22%; top: 31%; width: 52%; height: 25%;
+  transform: translate3d(calc(var(--glass-px, 0) * -13px), calc(var(--glass-py, 0) * 26px), 0) rotate(-3deg);
+}
+#home-details .glass-panel:hover .glass-modules span {
+  border-color: rgba(246, 250, 255, .57);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .58), 0 22px 38px rgba(4, 9, 28, .3), 0 0 26px rgba(171, 194, 255, .14);
+}
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  #home-details .glass-modules span { transition: none; }
+}
+@media (max-width: 850px) {
+  #home-details .glass-modules { display: none; }
+}

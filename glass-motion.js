@@ -14,6 +14,13 @@
       element.appendChild(fx);
       element.style.setProperty('--fx-delay', `${(-((index * 2.7) % 11)).toFixed(1)}s`);
     });
+    document.querySelectorAll('#home-details .glass-panel').forEach(element => {
+      const modules = document.createElement('div');
+      modules.className = 'glass-modules';
+      modules.setAttribute('aria-hidden', 'true');
+      modules.innerHTML = '<span></span><span></span><span></span>';
+      element.appendChild(modules);
+    });
     document.querySelectorAll('.showcase-browser').forEach((element, index) => {
       element.style.setProperty('--fx-delay', `${(-(3 + index * 4.5)).toFixed(1)}s`);
     });
