@@ -18,28 +18,79 @@
       element.style.setProperty('--fx-delay', `${(-(3 + index * 4.5)).toFixed(1)}s`);
     });
 
+    // Orbit lines around the hero cube, placed from the cube's own centre and size.
+    const heroStage = document.querySelector('.hero-stage');
+    if (heroStage) {
+      const orbits = document.createElement('div');
+      orbits.className = 'hero-orbits';
+      orbits.setAttribute('aria-hidden', 'true');
+      orbits.innerHTML = '<i class="r1"></i><i class="r2"></i><i class="r3"></i>';
+      heroStage.appendChild(orbits);
+      const placeOrbits = () => {
+        const w = heroStage.clientWidth;
+        const h = heroStage.clientHeight;
+        const mobile = w < 850;
+        heroStage.style.setProperty('--cube', `${Math.min(h * .44, w * (mobile ? .57 : .30)).toFixed(1)}px`);
+        heroStage.style.setProperty('--cx', `${(w * (mobile ? .5 : .64)).toFixed(1)}px`);
+        heroStage.style.setProperty('--cy', `${(h * (mobile ? .34 : .41)).toFixed(1)}px`);
+      };
+      placeOrbits();
+      addEventListener('resize', placeOrbits);
+    }
+
     // Ambient orbs and glass bubbles behind the pages, so the glass has something to refract.
     const shell = document.querySelector('.shell');
     if (shell) {
       const ambient = document.createElement('div');
       ambient.className = 'ambient';
       ambient.setAttribute('aria-hidden', 'true');
-      ambient.innerHTML = '<i class="o o1"></i><i class="o o2"></i><i class="o o3"></i><i class="b b1"></i><i class="b b2"></i>';
+      ambient.innerHTML = '<i class="o o1"></i><i class="o o2"></i><i class="o o3"></i><i class="b b1"></i><i class="b b2"></i><i class="c"></i>';
       shell.insertBefore(ambient, shell.firstChild);
 
+      // Thin scroll-progress line along the top edge.
+      const line = document.createElement('div');
+      line.className = 'scroll-line';
+      line.setAttribute('aria-hidden', 'true');
+      line.innerHTML = '<i></i>';
+      shell.appendChild(line);
+
+      // Scroll depth: the light drifts at its own speed while the page scrolls over it.
+      let scrollFrame = 0;
+      const syncScroll = () => {
+        scrollFrame = 0;
+        const page = document.querySelector('.page.active');
+        if (!reduced) ambient.style.setProperty('--amb-y', page ? Math.round(page.scrollTop) : 0);
+        const max = page ? page.scrollHeight - page.clientHeight : 0;
+        shell.style.setProperty('--scroll-p', max > 0 ? Math.min(1, page.scrollTop / max).toFixed(4) : 0);
+      };
+      const scheduleScroll = () => { if (!scrollFrame) scrollFrame = requestAnimationFrame(syncScroll); };
+      document.addEventListener('scroll', event => {
+        if (event.target instanceof Element && event.target.classList.contains('page')) scheduleScroll();
+      }, { capture: true, passive: true });
+      addEventListener('hashchange', () => setTimeout(scheduleScroll, 60));
+
       if (!reduced) {
-        // Scroll depth: the light drifts at its own speed while the page scrolls over it.
-        let scrollFrame = 0;
-        const syncScroll = () => {
-          scrollFrame = 0;
-          const page = document.querySelector('.page.active');
-          ambient.style.setProperty('--amb-y', page ? Math.round(page.scrollTop) : 0);
-        };
-        const scheduleScroll = () => { if (!scrollFrame) scrollFrame = requestAnimationFrame(syncScroll); };
-        document.addEventListener('scroll', event => {
-          if (event.target instanceof Element && event.target.classList.contains('page')) scheduleScroll();
-        }, { capture: true, passive: true });
-        addEventListener('hashchange', () => setTimeout(scheduleScroll, 60));
+        // Light that trails the cursor behind the glass (fine pointers only).
+        const light = ambient.querySelector('.c');
+        if (finePointer && light) {
+          const lp = { x: innerWidth / 2, y: innerHeight / 2 };
+          const lt = { ...lp };
+          let lightFrame = 0;
+          const lightStep = () => {
+            lightFrame = 0;
+            lp.x += (lt.x - lp.x) * .14;
+            lp.y += (lt.y - lp.y) * .14;
+            light.style.transform = `translate3d(${lp.x.toFixed(1)}px, ${lp.y.toFixed(1)}px, 0)`;
+            if (Math.abs(lt.x - lp.x) + Math.abs(lt.y - lp.y) > .5) lightFrame = requestAnimationFrame(lightStep);
+          };
+          addEventListener('pointermove', event => {
+            lt.x = event.clientX;
+            lt.y = event.clientY;
+            light.classList.add('on');
+            if (!lightFrame) lightFrame = requestAnimationFrame(lightStep);
+          }, { passive: true });
+          document.documentElement.addEventListener('pointerleave', () => light.classList.remove('on'));
+        }
 
         // Pointer depth: the light moves slightly against the cursor (fine pointers only).
         if (finePointer) {

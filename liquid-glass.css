@@ -208,6 +208,11 @@ body:has(.scene.play) .journey-visual {
    no width, height, padding, margin, gap or font-size is set anywhere.
    ===================================================================== */
 
+/* Frosted-glass grain: a faint speckle laid over the glass tints below. */
+html.lg2 {
+  --lg-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .4 -.16'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='.28'/%3E%3C/svg%3E");
+}
+
 /* --- Ambient light behind everything: gives the glass something to refract --- */
 html.lg2 .ambient { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; contain: strict; }
 html.lg2 .ambient i { position: absolute; display: block; border-radius: 50%; will-change: transform; }
@@ -245,7 +250,7 @@ html.lg2 .ambient .b2 { width: 11vmax; height: 11vmax; left: 5%; top: 62%; --d: 
 
 /* The showcase had a solid fill: let the ambient light show through it. */
 html.lg2 #home .showcase {
-  background: radial-gradient(ellipse at 75% 20%, #29315333, transparent 48%), rgba(8, 11, 19, .58);
+  background-color: rgba(8, 11, 19, .58);
 }
 
 /* --- Large glass surfaces: lens edge, depth shadow that follows the tilt --- */
@@ -263,15 +268,20 @@ html.lg2 :is(.glass-panel, .shop-card, .contact-aside) {
     inset 0 -22px 40px -22px rgba(120, 150, 255, .12);
 }
 html.lg2 .glass-panel {
-  background: linear-gradient(142deg, rgba(255, 255, 255, .17), rgba(190, 208, 255, .05) 38%, rgba(120, 150, 235, .06) 66%, rgba(255, 255, 255, .11));
+  background:
+    var(--lg-grain),
+    linear-gradient(142deg, rgba(255, 255, 255, .17), rgba(190, 208, 255, .05) 38%, rgba(120, 150, 235, .06) 66%, rgba(255, 255, 255, .11));
+  background-size: 160px 160px, auto;
 }
 html.lg2 .glass-panel::before {
   background: radial-gradient(circle at var(--glass-x, 24%) var(--glass-y, 0%), rgba(213, 230, 255, .2), transparent 56%);
 }
 html.lg2 :is(.shop-card, .contact-aside) {
   background:
+    var(--lg-grain),
     radial-gradient(circle at var(--glass-x, 30%) var(--glass-y, 0%), rgba(236, 243, 255, .22), transparent 54%),
     linear-gradient(142deg, rgba(255, 255, 255, .17), rgba(190, 208, 255, .05) 38%, rgba(120, 150, 235, .06) 66%, rgba(255, 255, 255, .11));
+  background-size: 160px 160px, auto, auto;
 }
 html.lg2 :is(.glass-panel, .shop-card, .contact-aside):hover {
   border-color: rgba(255, 255, 255, .5);
@@ -288,7 +298,10 @@ html.lg2 .summary { border-radius: 0 26px 26px 0; }
 /* Top bar: a floating lens */
 html.lg2 .topbar {
   border-color: rgba(255, 255, 255, .3);
-  background: linear-gradient(120deg, rgba(255, 255, 255, .17), rgba(150, 175, 235, .07) 46%, rgba(255, 255, 255, .1));
+  background:
+    var(--lg-grain),
+    linear-gradient(120deg, rgba(255, 255, 255, .17), rgba(150, 175, 235, .07) 46%, rgba(255, 255, 255, .1));
+  background-size: 160px 160px, auto;
   -webkit-backdrop-filter: blur(26px) saturate(180%) brightness(1.08);
   backdrop-filter: blur(26px) saturate(180%) brightness(1.08);
   box-shadow:
@@ -517,4 +530,115 @@ html.lg2 .liquid-object.orb i {
 }
 @media (prefers-reduced-motion: reduce) {
   .showcase-open span { transition: none; }
+}
+
+/* =====================================================================
+   Detail layer: engraved marks, orbit lines, light that follows the cursor,
+   metallic type and glints. Everything below is absolutely positioned,
+   painted (colour, shadow, gradient) or transformed: no box is resized.
+   ===================================================================== */
+
+/* Etched corner marks on the large glass cards */
+/* (drawn on the .glass-fx layer, so the card's own ::after highlight line stays untouched) */
+html.lg2 :is(.glass-panel, .shop-card, .contact-aside) > .glass-fx {
+  --t: rgba(235, 243, 255, .32);
+  background:
+    linear-gradient(var(--t), var(--t)) left 9px top 9px / 8px 1px no-repeat,
+    linear-gradient(var(--t), var(--t)) left 9px top 9px / 1px 8px no-repeat,
+    linear-gradient(var(--t), var(--t)) right 9px top 9px / 8px 1px no-repeat,
+    linear-gradient(var(--t), var(--t)) right 9px top 9px / 1px 8px no-repeat,
+    linear-gradient(var(--t), var(--t)) left 9px bottom 9px / 8px 1px no-repeat,
+    linear-gradient(var(--t), var(--t)) left 9px bottom 9px / 1px 8px no-repeat,
+    linear-gradient(var(--t), var(--t)) right 9px bottom 9px / 8px 1px no-repeat,
+    linear-gradient(var(--t), var(--t)) right 9px bottom 9px / 1px 8px no-repeat;
+}
+html.lg2 :is(.glass-panel, .shop-card, .contact-aside):hover > .glass-fx { --t: rgba(245, 249, 255, .6); }
+
+/* Lit pin on the "principles" lines (the process lines already have their own bar) */
+html.lg2 .principle { position: relative; }
+html.lg2 .principle::before {
+  content: ""; position: absolute; top: -3px; left: 0; width: 5px; height: 5px; border-radius: 50%;
+  background: #dbe8ff; box-shadow: 0 0 10px 1px rgba(158, 193, 255, .75);
+}
+
+/* Metallic type on the big statements */
+html.lg2 :is(.block-head h2, .final-cta h2, .duo h2) {
+  background: linear-gradient(180deg, #ffffff 18%, #dbe5ff 58%, #a9b8e6 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+html.lg2 .hero-copy h1 strong {
+  background: linear-gradient(100deg, #dfe9ff 0%, #ffffff 24%, #b4c6ff 46%, #ffffff 68%, #dfe9ff 100%);
+  background-size: 230% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  animation: lg-type-sheen 9s ease-in-out infinite alternate;
+}
+@keyframes lg-type-sheen { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+
+/* Navigation: glowing underline and lit label */
+html.lg2 .nav button:after {
+  background: linear-gradient(90deg, transparent, #e4eeff 30%, #e4eeff 70%, transparent);
+  box-shadow: 0 0 9px 1px rgba(158, 193, 255, .7);
+}
+html.lg2 .nav button.active { text-shadow: 0 0 16px rgba(190, 215, 255, .65); }
+
+/* Browser-window dots on the concept previews become little glass beads */
+html.lg2 .showcase-chrome i {
+  opacity: 1;
+  background: radial-gradient(circle at 32% 28%, #ffffff, #b7c6ea 55%, #6d7fae);
+  box-shadow: 0 0 6px rgba(160, 190, 255, .45);
+}
+
+/* Specular glints on the floating glass objects */
+html.lg2 .liquid-object i { position: relative; }
+html.lg2 .liquid-object i::after {
+  content: ""; position: absolute; left: 13%; top: 9%; width: 40%; height: 19%; border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .7), rgba(255, 255, 255, 0));
+  transform: rotate(-28deg); filter: blur(1.2px); pointer-events: none;
+}
+html.lg2 .liquid-object.ring i::after { left: 9%; top: 3%; width: 30%; height: 10%; opacity: .8; }
+html.lg2 .duo-art i::after {
+  content: ""; position: absolute; left: 17%; top: 11%; width: 34%; height: 17%; border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .62), rgba(255, 255, 255, 0));
+  transform: rotate(-30deg); filter: blur(1.4px); pointer-events: none;
+}
+
+/* Orbit lines around the hero cube (positioned from the cube's own centre and size) */
+html.lg2 .hero-orbits {
+  position: absolute; left: var(--cx, 64%); top: var(--cy, 41%); width: 0; height: 0;
+  z-index: 1; pointer-events: none; opacity: .9;
+}
+html.lg2 .hero-orbits i {
+  position: absolute; left: 0; top: 0; display: block; border-radius: 50%; translate: -50% -50%;
+  border: 1px solid rgba(190, 210, 255, .2);
+  transform: perspective(1500px) rotateX(var(--tilt, 70deg)) rotateY(var(--roll, 0deg)) rotateZ(0deg);
+  animation: lg-orbit var(--spin, 46s) linear infinite;
+}
+html.lg2 .hero-orbits i::before {
+  content: ""; position: absolute; left: 50%; top: 0; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #bcd2ff 60%, #7f9bff);
+  box-shadow: 0 0 14px 2px rgba(170, 200, 255, .7);
+}
+html.lg2 .hero-orbits .r1 { width: calc(var(--cube, 380px) * 1.55); height: calc(var(--cube, 380px) * 1.55); --tilt: 72deg; --roll: -14deg; --spin: 38s; }
+html.lg2 .hero-orbits .r2 { width: calc(var(--cube, 380px) * 2.05); height: calc(var(--cube, 380px) * 2.05); --tilt: 66deg; --roll: 22deg; --spin: 61s; border-style: dashed; border-color: rgba(190, 210, 255, .13); animation-direction: reverse; }
+html.lg2 .hero-orbits .r3 { width: calc(var(--cube, 380px) * 2.7); height: calc(var(--cube, 380px) * 2.7); --tilt: 76deg; --roll: 6deg; --spin: 84s; border-color: rgba(190, 210, 255, .09); }
+html.lg2 .hero-orbits .r3::before { width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; opacity: .75; }
+@keyframes lg-orbit {
+  to { transform: perspective(1500px) rotateX(var(--tilt, 70deg)) rotateY(var(--roll, 0deg)) rotateZ(360deg); }
+}
+
+/* Soft light that trails the cursor behind the glass */
+html.lg2 .ambient .c {
+  width: 34vmax; height: 34vmax; left: 0; top: 0; translate: -50% -50%; opacity: 0; transition: opacity .6s ease;
+  background: radial-gradient(circle, rgba(176, 204, 255, .16), rgba(176, 204, 255, .05) 42%, transparent 68%);
+}
+html.lg2 .ambient .c.on { opacity: 1; }
+
+/* Thin scroll-progress line along the very top edge */
+html.lg2 .scroll-line { position: absolute; left: 0; right: 0; top: 0; height: 2px; z-index: 12; pointer-events: none; }
+html.lg2 .scroll-line i {
+  display: block; height: 100%; transform-origin: 0 50%; transform: scaleX(var(--scroll-p, 0));
+  background: linear-gradient(90deg, rgba(120, 160, 255, 0), #a9c4ff 40%, #e4dcff);
+  box-shadow: 0 0 10px rgba(160, 190, 255, .7);
 }
