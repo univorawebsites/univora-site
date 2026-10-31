@@ -7,7 +7,7 @@
   /* Main site only: ambient light, rim-light layers and scroll depth. */
   if (rich) {
     // Rim light + sheen layer inside every large glass surface (absolutely positioned: no layout impact).
-    document.querySelectorAll('.topbar, .glass-panel, .shop-card, .contact-aside').forEach((element, index) => {
+    document.querySelectorAll('.topbar, .glass-panel, .shop-card, .contact-aside, .summary').forEach((element, index) => {
       const fx = document.createElement('span');
       fx.className = 'glass-fx';
       fx.setAttribute('aria-hidden', 'true');
@@ -60,7 +60,89 @@
       const pauser = new IntersectionObserver(entries => {
         for (const entry of entries) entry.target.classList.toggle('lg-off', !entry.isIntersecting);
       }, { rootMargin: '120px' });
-      document.querySelectorAll('.glass-panel, .shop-card, .contact-aside, .showcase-browser, .hero-orbits').forEach(el => pauser.observe(el));
+      document.querySelectorAll('.glass-panel, .shop-card, .contact-aside, .summary, .showcase-browser, .hero-orbits').forEach(el => pauser.observe(el));
+    }
+
+    // Shop summary: a live "plan card" with an emblem, a level meter and the chosen budget.
+    // It listens to the existing level buttons / slider (it only watches their text), so their own code is untouched.
+    const summary = document.querySelector('.summary');
+    const levelValue = document.getElementById('levelValue');
+    const budgetInput = document.getElementById('budget');
+    const budgetText = document.getElementById('budgetValue');
+    const featureList = document.getElementById('features');
+    if (summary && levelValue && featureList) {
+      const tiers = { Essential: 1, Signature: 2, Universe: 3 };
+      const emblem = document.createElement('div');
+      emblem.className = 'plan-emblem';
+      emblem.setAttribute('aria-hidden', 'true');
+      emblem.innerHTML = '<i></i><i></i><i></i><b></b>';
+      summary.insertBefore(emblem, summary.firstChild);
+
+      const meter = document.createElement('div');
+      meter.className = 'plan-meter';
+      meter.setAttribute('aria-hidden', 'true');
+      meter.innerHTML = '<i></i><i></i><i></i><em></em>';
+      levelValue.insertAdjacentElement('afterend', meter);
+
+      const budgetRow = document.createElement('div');
+      budgetRow.className = 'plan-budget';
+      budgetRow.innerHTML = '<span>Budget indicativo</span><b></b><div class="bar"><div></div></div>';
+      featureList.insertAdjacentElement('afterend', budgetRow);
+
+      let currentPlan = '';
+      let switchTimer = 0;
+      const syncPlan = first => {
+        const name = levelValue.textContent.trim();
+        if (!name || name === currentPlan) return;
+        currentPlan = name;
+        const tier = tiers[name] || 1;
+        summary.dataset.plan = name;
+        summary.dataset.tier = String(tier);
+        meter.querySelector('em').textContent = `0${tier} / 03`;
+        if (first || reduced) return;
+        summary.classList.remove('is-switching');
+        void summary.offsetWidth;
+        summary.classList.add('is-switching');
+        clearTimeout(switchTimer);
+        switchTimer = setTimeout(() => summary.classList.remove('is-switching'), 1300);
+      };
+      new MutationObserver(() => syncPlan(false)).observe(levelValue, { childList: true, characterData: true, subtree: true });
+      syncPlan(true);
+
+      const syncBudget = () => {
+        if (!budgetInput || !budgetText) return;
+        budgetRow.querySelector('b').textContent = budgetText.textContent;
+        const min = Number(budgetInput.min) || 0;
+        const max = Number(budgetInput.max) || 100;
+        const share = Math.max(0, Math.min(1, (Number(budgetInput.value) - min) / (max - min)));
+        budgetRow.style.setProperty('--bp', `${(share * 100).toFixed(1)}%`);
+      };
+      if (budgetInput && budgetText) {
+        budgetInput.addEventListener('input', syncBudget);
+        new MutationObserver(syncBudget).observe(budgetText, { childList: true, characterData: true, subtree: true });
+      }
+      syncBudget();
+    }
+
+    // Showcase: each concept drifts and turns slightly as it travels through the screen (--par: -1 … 1).
+    const showcaseItems = [...document.querySelectorAll('.showcase-item')];
+    if (showcaseItems.length && !reduced) {
+      let parFrame = 0;
+      const updatePar = () => {
+        parFrame = 0;
+        const vh = innerHeight;
+        for (const item of showcaseItems) {
+          const r = item.getBoundingClientRect();
+          if (!r.height || r.bottom < -240 || r.top > vh + 240) continue;
+          const t = Math.max(-1, Math.min(1, ((r.top + r.height / 2) - vh / 2) / vh));
+          item.style.setProperty('--par', t.toFixed(3));
+        }
+      };
+      const queuePar = () => { if (!parFrame) parFrame = requestAnimationFrame(updatePar); };
+      document.querySelectorAll('.page').forEach(page => page.addEventListener('scroll', queuePar, { passive: true }));
+      addEventListener('resize', queuePar);
+      document.addEventListener('click', event => { if (event.target.closest('[data-page]')) setTimeout(queuePar, 150); });
+      updatePar();
     }
 
     // Glass budget slider: the filled part of the track follows the thumb.
@@ -123,7 +205,7 @@
       // Touch screens have no cursor: the light on each glass card slides as the card travels up the screen.
       let touchLight = null;
       if (!finePointer && !reduced) {
-        const cards = document.querySelectorAll('.glass-panel, .shop-card, .contact-aside');
+        const cards = document.querySelectorAll('.glass-panel, .shop-card, .contact-aside, .summary');
         const inView = new Set();
         if ('IntersectionObserver' in window) {
           const watcher = new IntersectionObserver(entries => {
@@ -211,7 +293,7 @@
 
   if (!(finePointer && !reduced)) return;
 
-  const surfaces = document.querySelectorAll('.glass-panel, .shop-card, .contact-aside, .feature-card');
+  const surfaces = document.querySelectorAll('.glass-panel, .shop-card, .contact-aside, .summary, .feature-card');
   const strength = rich ? 7 : 5;
   for (const element of surfaces) {
     element.classList.add('glass-motion');
