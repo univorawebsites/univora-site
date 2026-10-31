@@ -1020,3 +1020,56 @@ html.lg2 .range:active::-webkit-slider-thumb { transform: scale(1.2); }
   html.lg2.lg2 .nav button::before, html.lg2.lg2 #contact .faq summary::after,
   html.lg2 .button .arrow, html.lg2 .round .glyph, html.lg2 .to-top i { transition: none; }
 }
+
+/* ---- Small refinements: form feedback, selection, links ---- */
+html.lg2 { -webkit-tap-highlight-color: transparent; }
+html.lg2 ::selection { background: rgba(170, 200, 255, .38); color: #fff; text-shadow: none; }
+
+/* Fields: smooth state changes, soft hover, calm placeholder */
+html.lg2 .contact-form :is(input, textarea) {
+  font-family: inherit;
+  line-height: 15px; /* matches the old system-font line box, so field heights stay exactly the same */
+  caret-color: #cfe0ff;
+  transition: border-color .3s ease, background-color .3s ease, box-shadow .45s var(--glide, ease);
+}
+@media (max-width: 600px), (pointer: coarse) { html.lg2 .contact-form :is(input, textarea) { line-height: 18px; } } /* 16px fields keep their old height */
+html.lg2 .contact-form :is(input, textarea)::placeholder { transition: opacity .3s ease, color .3s ease; }
+html.lg2 .contact-form :is(input, textarea):focus::placeholder { opacity: .4; }
+@media (hover: hover) {
+  html.lg2 .contact-form :is(input, textarea):hover:not(:focus) { border-color: rgba(255, 255, 255, .34); background-color: rgba(255, 255, 255, .06); }
+}
+/* Browser autofill keeps the dark glass instead of the white/yellow default */
+html.lg2 .contact-form :is(input, textarea):-webkit-autofill {
+  -webkit-text-fill-color: #fff;
+  caret-color: #fff;
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
+/* Validation shows only after the person has interacted */
+html.lg2 .contact-form :is(input, textarea):user-invalid {
+  border-color: rgba(255, 170, 180, .75);
+  box-shadow: inset 1.5px 1.5px 2px -1px rgba(255, 255, 255, .4), inset 0 0 18px rgba(255, 130, 150, .1), 0 0 0 3px rgba(255, 140, 160, .14);
+}
+html.lg2 .contact-form :is(input, textarea):user-valid:not(:placeholder-shown) { border-color: rgba(170, 240, 205, .5); }
+html.lg2 .contact-form textarea { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .28) transparent; }
+
+/* Status message eases in with a small icon; sending state breathes */
+html.lg2 .contact-form .form-status:not(:empty) { animation: lg-status-in .55s var(--spring, ease) both; }
+html.lg2 .contact-form .form-status[data-state="success"]::before { content: "✓ "; text-shadow: 0 0 12px rgba(160, 245, 200, .6); }
+html.lg2 .contact-form .form-status[data-state="error"]::before { content: "! "; font-weight: 700; }
+@keyframes lg-status-in { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
+html.lg2 .contact-form button:disabled { pointer-events: none; animation: lg-busy 1.3s ease-in-out infinite; }
+@keyframes lg-busy { 0%, 100% { opacity: .62; } 50% { opacity: .9; } }
+
+/* Text links: underline that warms up on hover */
+html.lg2 :is(.contact-aside, .form-note) a {
+  text-decoration-color: rgba(220, 232, 255, .35);
+  text-decoration-thickness: 1px;
+  transition: text-decoration-color .3s ease, color .3s ease;
+}
+@media (hover: hover) {
+  html.lg2 :is(.contact-aside, .form-note) a:hover { color: #fff; text-decoration-color: rgba(255, 255, 255, .95); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.lg2 .contact-form .form-status:not(:empty), html.lg2 .contact-form button:disabled { animation: none; }
+}
